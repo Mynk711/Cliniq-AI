@@ -198,7 +198,6 @@
 # if question := st.chat_input("Ask anything about your patients..."):
 #     process_question(question)
 
-
 import warnings
 warnings.filterwarnings("ignore")
 import time
@@ -216,18 +215,16 @@ st.set_page_config(
 
 st.markdown("""
 <style>
+[data-testid="stHeader"] { display: none; }
+[data-testid="stToolbar"] { display: none; }
 .stApp { background-color: #07132A; }
-.block-container { padding-top: 2.5rem; padding-left: 2rem; padding-right: 2rem; }
-[data-testid="stSidebar"] > div:first-child { padding-top: 1rem; }
-[data-testid="stSidebar"] section.main { overflow-y: auto; }
+.block-container { padding-top: 1rem !important; padding-left: 2rem; padding-right: 2rem; }
 [data-testid="stSidebar"] { background-color: #0A1F3D; border-right: 1px solid #183560; }
 [data-testid="stSidebar"] * { color: #EFF6FF; }
-[data-testid="stSidebar"] h1, [data-testid="stSidebar"] h2, [data-testid="stSidebar"] h3 { color: #EFF6FF !important; font-size: 13px !important; letter-spacing: 1px; font-weight: 600; }
 [data-testid="stSidebar"] p, [data-testid="stSidebar"] li { color: #7A9CC4 !important; font-size: 12px; line-height: 1.7; }
 [data-testid="stSidebar"] .stButton > button { background-color: #0D2040; color: #7A9CC4 !important; border: 1px solid #183560; border-radius: 8px; font-size: 11px; padding: 6px 10px; width: 100%; transition: all 0.15s; }
 [data-testid="stSidebar"] .stButton > button:hover { border-color: #1AC8D4; color: #1AC8D4 !important; background-color: #041820; }
-h1 { color: #EFF6FF !important; font-size: 2rem !important; font-weight: 600 !important; }
-h2, h3, p, span, label, li { color: #EFF6FF !important; }
+h1, h2, h3, p, span, label, li { color: #EFF6FF !important; }
 .stCaption, small { color: #6B9CC4 !important; }
 hr { border-color: #183560 !important; margin: 0.8rem 0; }
 [data-testid="stMetric"] { background-color: #0D2040; border: 1px solid #183560; border-radius: 10px; padding: 10px 14px; }
