@@ -285,10 +285,10 @@ with st.sidebar:
 
     **Architecture:**
     - Single-token LLM Router
-    - SQL — structured queries
-    - RAG — semantic search (FAISS)
-    - HYBRID — parallel SQL + RAG
-    - DIRECT — conversational
+    - SQL - structured queries
+    - RAG - semantic search (FAISS)
+    - HYBRID - parallel SQL + RAG
+    - DIRECT - conversational
     """)
 
     st.divider()
