@@ -256,75 +256,63 @@ def initialize():
 
 initialize()
 
+# Header
+col1, col2 = st.columns([3, 1])
+with col1:
+    st.title("⚕️ CliniqAI")
+    st.caption("Intelligent Clinical Assistant: Powered by MIMIC-III & Groq")
+with col2:
+    st.metric("Patients", "100")
+    st.metric("Data Source", "MIMIC-III")
+
+st.divider()
+
+# Sidebar
 with st.sidebar:
+    st.header("About CliniqAI")
     st.markdown("""
-    <div style='display:flex;align-items:center;gap:10px;margin-bottom:6px;'>
-        <span style='font-size:22px;'>⚕️</span>
-        <div>
-            <div style='color:#EFF6FF;font-size:15px;font-weight:600;'>CliniqAI</div>
-            <div style='color:#6B9CC4;font-size:11px;'>Intelligent Clinical Assistant</div>
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
+    CliniqAI unifies fragmented healthcare data into a
+    single natural language interface.
+
+    **Data Sources:**
+    - 100 de-identified ICU patients
+    - Real admission & diagnosis records
+    - Prescription data
+    - MIMIC-III Clinical Database
+
+    **Architecture:**
+    - 🔤 Single-token LLM Router
+    - 🗄️ SQL — structured queries
+    - 🧠 RAG — semantic search (FAISS)
+    - ⚡ HYBRID — parallel SQL + RAG
+    - 💬 DIRECT — conversational
+    """)
+
     st.divider()
-    st.markdown("<p style='color:#1AC8D4;font-size:10px;font-weight:700;letter-spacing:2px;margin-bottom:6px;'>ABOUT CLINIQAI</p>", unsafe_allow_html=True)
-    st.markdown("<p style='color:#7A9CC4;font-size:12px;'>CliniqAI unifies fragmented healthcare data into a single natural language interface.</p>", unsafe_allow_html=True)
-    st.divider()
-    st.markdown("<p style='color:#1AC8D4;font-size:10px;font-weight:700;letter-spacing:2px;margin-bottom:6px;'>DATA SOURCES</p>", unsafe_allow_html=True)
-    st.markdown("""
-    <ul style='color:#7A9CC4;font-size:12px;line-height:2;padding-left:16px;'>
-        <li>100 de-identified ICU patients</li>
-        <li>Real admission &amp; diagnosis records</li>
-        <li>Prescription data</li>
-        <li>MIMIC-III Clinical Database</li>
-    </ul>
-    """, unsafe_allow_html=True)
-    st.divider()
-    st.markdown("<p style='color:#1AC8D4;font-size:10px;font-weight:700;letter-spacing:2px;margin-bottom:6px;'>ARCHITECTURE</p>", unsafe_allow_html=True)
-    st.markdown("""
-    <div style='font-size:12px;color:#7A9CC4;line-height:2.2;'>
-        🔤&nbsp; Single-token LLM Router<br>
-        🗄️&nbsp; SQL — structured queries<br>
-        🧠&nbsp; RAG — semantic search (FAISS)<br>
-        ⚡&nbsp; HYBRID — parallel SQL + RAG<br>
-        💬&nbsp; DIRECT — conversational
-    </div>
-    """, unsafe_allow_html=True)
-    st.divider()
-    st.markdown("<p style='color:#1AC8D4;font-size:10px;font-weight:700;letter-spacing:2px;margin-bottom:8px;'>TRY THESE</p>", unsafe_allow_html=True)
+
+    st.header("Try These Questions")
     example_questions = [
         "How many patients were admitted as emergency?",
         "Show me patients with cardiac conditions",
-        "Show me cardiac patients and what they were prescribed",
-        "Which patients died during admission?",
         "What medications are most commonly prescribed?",
+        "How many female patients do we have?",
+        "Which patients died during admission?",
         "What is the breakdown of admission types?",
     ]
     for q in example_questions:
         if st.button(q, use_container_width=True):
             st.session_state.pending_question = q
+
     st.divider()
+
     if st.button("🗑️ Clear Chat", use_container_width=True):
         st.session_state.messages = []
         st.rerun()
 
-col1, col2, col3 = st.columns([4, 1, 1])
-with col1:
-    st.markdown("""
-    <div style='display:flex;align-items:center;gap:14px;margin-bottom:4px;'>
-        <span style='font-size:36px;'>⚕️</span>
-        <div>
-            <div style='color:#EFF6FF;font-size:28px;font-weight:600;line-height:1.1;'>CliniqAI</div>
-            <div style='color:#6B9CC4;font-size:13px;'>Intelligent Clinical Assistant — Powered by MIMIC-III &amp; Groq</div>
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
-with col2:
-    st.metric("PATIENTS", "100")
-with col3:
-    st.metric("DATA SOURCE", "MIMIC-III")
-
-st.divider()
+    st.divider()
+    st.caption("LLM: Llama 3.3 70B via Groq")
+    st.caption("Embeddings: all-MiniLM-L6-v2")
+    st.caption("Vector Store: FAISS")
 
 ROUTE_CONFIG = {
     "S": {"label": "SQL",    "color": "#0EA5E9", "icon": "🗄️"},
