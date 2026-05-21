@@ -196,7 +196,6 @@
 #             print(f"SQL: {result['sql_used']}")
 #         print(f"A: {result['answer']}")
 #         print("="*50)
-
 import warnings
 warnings.filterwarnings("ignore")
 
@@ -242,7 +241,6 @@ Query: {question}
 """
 
 def classify_query(question):
-    """Route question to S, R, H, or D using single token LLM call"""
     response = client.chat.completions.create(
         model=MODEL,
         messages=[{
@@ -258,7 +256,6 @@ def classify_query(question):
     return decision.lower()
 
 def generate_sql(question, chat_history=[]):
-    """Ask Groq to generate SQL for the question"""
     schema = """
     Tables:
     - patients: subject_id, gender, dob, dod
@@ -306,33 +303,31 @@ def generate_sql(question, chat_history=[]):
     return response.choices[0].message.content.strip()
 
 def run_sql_pipeline(question, chat_history=[]):
-    """Generate and execute SQL, return results"""
     sql = generate_sql(question, chat_history)
     columns, rows = query_db(sql)
     return columns, rows, sql
 
 def run_rag_pipeline(question):
-    """Retrieve semantically relevant patient chunks"""
     return retrieve(question, top_k=5)
 
 def format_sql_context(columns, rows):
-    """Format SQL results as readable labeled context"""
     if columns is None or not rows:
         return "No records found."
+    total = len(rows)
+    display = rows[:100]
     header = " | ".join(columns)
     data_rows = "\n".join([
-        " | ".join(str(v) for v in row) for row in rows[:20]
+        " | ".join(str(v) for v in row) for row in display
     ])
-    return f"Query returned the following results:\n{header}\n{data_rows}"
+    suffix = f"\n(Showing {len(display)} of {total} total results)" if total > len(display) else f"\n(Total: {total} results)"
+    return f"Query returned {total} results:\n{header}\n{data_rows}{suffix}"
 
 def format_rag_context(chunks):
-    """Format RAG chunks as readable context"""
     if not chunks:
         return "No relevant patient records found."
     return "\n\n---\n\n".join([c["text"] for c in chunks])
 
 def synthesize(question, context, chat_history=[]):
-    """Final LLM call to generate grounded answer"""
     prompt = f"""
     Question: {question}
 
@@ -354,7 +349,6 @@ def synthesize(question, context, chat_history=[]):
     return response.choices[0].message.content.strip()
 
 def answer_direct(question, chat_history=[]):
-    """Handle off-topic or conversational questions directly"""
     messages = [{"role": "system", "content": SYSTEM_PROMPT}]
     messages.extend(chat_history)
     messages.append({"role": "user", "content": question})
@@ -367,10 +361,8 @@ def answer_direct(question, chat_history=[]):
     return response.choices[0].message.content.strip()
 
 def answer(question, chat_history=[]):
-    """Main entry point — routes and answers"""
     route = classify_query(question)
 
-    # Direct — no retrieval needed
     if route == "d":
         return {
             "answer": answer_direct(question, chat_history),
@@ -379,7 +371,6 @@ def answer(question, chat_history=[]):
             "route": "D"
         }
 
-    # SQL only
     if route == "s":
         columns, rows, sql = run_sql_pipeline(question, chat_history)
         context = format_sql_context(columns, rows)
@@ -390,7 +381,6 @@ def answer(question, chat_history=[]):
             "route": "S"
         }
 
-    # RAG only
     if route == "r":
         chunks = run_rag_pipeline(question)
         context = format_rag_context(chunks)
@@ -401,14 +391,10 @@ def answer(question, chat_history=[]):
             "route": "R"
         }
 
-    # HYBRID — parallel SQL + RAG
     if route == "h":
         with ThreadPoolExecutor(max_workers=2) as executor:
-            sql_future = executor.submit(
-                run_sql_pipeline, question, chat_history
-            )
+            sql_future = executor.submit(run_sql_pipeline, question, chat_history)
             rag_future = executor.submit(run_rag_pipeline, question)
-
             columns, rows, sql = sql_future.result()
             chunks = rag_future.result()
 
@@ -430,7 +416,6 @@ SEMANTIC PATIENT RECORDS:
             "route": "H"
         }
 
-    # Fallback
     return {
         "answer": answer_direct(question, chat_history),
         "method": "DIRECT",

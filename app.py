@@ -148,7 +148,7 @@
 #         # Thinking states
 #         status = st.empty()
 
-#         status.markdown("🔄 **Classifying intent...**")
+#         status.markdown(" **Classifying intent...**")
 #         time.sleep(0.3)
 
 #         route = classify_query(question)
@@ -284,11 +284,11 @@ with st.sidebar:
     - MIMIC-III Clinical Database
 
     **Architecture:**
-    - 🔤 Single-token LLM Router
-    - 🗄️ SQL — structured queries
-    - 🧠 RAG — semantic search (FAISS)
-    - ⚡ HYBRID — parallel SQL + RAG
-    - 💬 DIRECT — conversational
+    - Single-token LLM Router
+    - SQL — structured queries
+    - RAG — semantic search (FAISS)
+    - HYBRID — parallel SQL + RAG
+    - DIRECT — conversational
     """)
 
     st.divider()
@@ -308,7 +308,7 @@ with st.sidebar:
 
     st.divider()
 
-    if st.button("🗑️ Clear Chat", use_container_width=True):
+    if st.button(" Clear Chat", use_container_width=True):
         st.session_state.messages = []
         st.rerun()
 
@@ -318,10 +318,10 @@ with st.sidebar:
     st.caption("Vector Store: FAISS")
 
 ROUTE_CONFIG = {
-    "S": {"label": "SQL",    "color": "#0EA5E9", "icon": "🗄️"},
-    "R": {"label": "RAG",    "color": "#1AC8D4", "icon": "🧠"},
-    "H": {"label": "HYBRID", "color": "#6366F1", "icon": "⚡"},
-    "D": {"label": "DIRECT", "color": "#6B9CC4", "icon": "💬"},
+    "S": {"label": "SQL",    "color": "#0EA5E9"},
+    "R": {"label": "RAG",    "color": "#1AC8D4"},
+    "H": {"label": "HYBRID", "color": "#6366F1"},
+    "D": {"label": "DIRECT", "color": "#6B9CC4"},
 }
 
 def render_route_badge(route):
@@ -342,7 +342,7 @@ for message in st.session_state.messages:
         if message.get("route"):
             render_route_badge(message["route"])
         if message.get("sql"):
-            with st.expander("🔍 SQL Query Generated"):
+            with st.expander("SQL Query Generated"):
                 st.code(message["sql"], language="sql")
 
 def build_chat_history():
@@ -357,17 +357,17 @@ def process_question(question):
         st.markdown(question)
     with st.chat_message("assistant"):
         status = st.empty()
-        status.markdown("<span style='color:#6B9CC4;font-size:12px;'>🔄 Classifying intent...</span>", unsafe_allow_html=True)
+        status.markdown("<span style='color:#6B9CC4;font-size:12px;'> Classifying intent...</span>", unsafe_allow_html=True)
         time.sleep(0.3)
         route = classify_query(question)
         if route == "s":
-            status.markdown("<span style='color:#0EA5E9;font-size:12px;'>🗄️ Querying SQL database...</span>", unsafe_allow_html=True)
+            status.markdown("<span style='color:#0EA5E9;font-size:12px;'> Querying SQL database...</span>", unsafe_allow_html=True)
         elif route == "r":
-            status.markdown("<span style='color:#1AC8D4;font-size:12px;'>🧠 Searching FAISS vector space...</span>", unsafe_allow_html=True)
+            status.markdown("<span style='color:#1AC8D4;font-size:12px;'> Searching FAISS vector space...</span>", unsafe_allow_html=True)
         elif route == "h":
-            status.markdown("<span style='color:#6366F1;font-size:12px;'>⚡ Running parallel SQL + RAG retrieval...</span>", unsafe_allow_html=True)
+            status.markdown("<span style='color:#6366F1;font-size:12px;'> Running parallel SQL + RAG retrieval...</span>", unsafe_allow_html=True)
         else:
-            status.markdown("<span style='color:#6B9CC4;font-size:12px;'>💬 Thinking...</span>", unsafe_allow_html=True)
+            status.markdown("<span style='color:#6B9CC4;font-size:12px;'> Thinking...</span>", unsafe_allow_html=True)
         chat_history = build_chat_history()
         result = answer(question, chat_history)
         status.markdown("<span style='color:#1AC8D4;font-size:12px;'>✍️ Synthesizing clinical answer...</span>", unsafe_allow_html=True)
@@ -376,7 +376,7 @@ def process_question(question):
         st.markdown(result["answer"])
         render_route_badge(result["route"])
         if result["sql_used"]:
-            with st.expander("🔍 SQL Query Generated"):
+            with st.expander(" SQL Query Generated"):
                 st.code(result["sql_used"], language="sql")
     st.session_state.messages.append({
         "role": "assistant",
