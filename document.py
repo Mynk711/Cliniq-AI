@@ -3,10 +3,14 @@ import numpy as np
 import faiss
 import pickle
 from sentence_transformers import SentenceTransformer
+import warnings
+import os
+warnings.filterwarnings("ignore")
 
-DB_PATH = "cliniqai.db"
-INDEX_PATH = "cliniqai.index"
-CHUNKS_PATH = "cliniqai_chunks.pkl"
+BASE_DIR = os.path.dirname(__file__)
+DB_PATH = os.path.join(BASE_DIR, "cliniqai.db")
+INDEX_PATH = os.path.join(BASE_DIR, "cliniqai.index")
+CHUNKS_PATH = os.path.join(BASE_DIR, "cliniqai_chunks.pkl")
 
 # Load embedding model — runs locally, no API needed
 model = SentenceTransformer("all-MiniLM-L6-v2")

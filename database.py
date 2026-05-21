@@ -1,7 +1,8 @@
 import sqlite3
 import pandas as pd
+import os
 
-DB_PATH = "cliniqai.db"
+DB_PATH = os.path.join(os.path.dirname(__file__), "cliniqai.db")
 MIMIC_PATH = "mimic-iii-clinical-database-demo-1.4"
 
 def init_db():

@@ -153,15 +153,21 @@ import os
 # Page config
 st.set_page_config(
     page_title="CliniqAI",
-    page_icon="🏥",
+    page_icon="⚕️",
     layout="wide"
 )
 
 # Initialize on first run
 @st.cache_resource
+@st.cache_resource
 def initialize():
-    init_db()
-    if not os.path.exists("cliniqai.index"):
+    import os
+    db_path = os.path.join(os.path.dirname(__file__), "cliniqai.db")
+    index_path = os.path.join(os.path.dirname(__file__), "cliniqai.index")
+    
+    if not os.path.exists(db_path):
+        init_db()
+    if not os.path.exists(index_path):
         build_index()
     return True
 
@@ -170,7 +176,7 @@ initialize()
 # Header
 col1, col2 = st.columns([3, 1])
 with col1:
-    st.title("🏥 CliniqAI")
+    st.title("⚕️ CliniqAI")
     st.caption("Intelligent Clinical Assistant — Powered by MIMIC-III & Groq")
 with col2:
     st.metric("Patients", "100")
