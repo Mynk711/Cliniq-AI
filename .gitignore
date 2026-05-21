@@ -1,0 +1,7 @@
+cliniq/
+venv/
+.env
+mimic-iii-clinical-database-demo-1.4/
+__pycache__/
+*.pyc
+.DS_Store
