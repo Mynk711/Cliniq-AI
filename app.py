@@ -213,25 +213,17 @@ st.set_page_config(
     layout="wide"
 )
 
+
 st.markdown("""
 <style>
-.stApp { background-color: #07132A; }
-[data-testid="stSidebar"] { background-color: #0D2040; border-right: 1px solid #183560; }
-[data-testid="stSidebar"] * { color: #EFF6FF !important; }
-[data-testid="stSidebar"] .stButton > button { background-color: #07132A; color: #6B9CC4 !important; border: 1px solid #183560; border-radius: 6px; font-size: 12px; }
-[data-testid="stSidebar"] .stButton > button:hover { border-color: #1AC8D4; color: #1AC8D4 !important; }
-[data-testid="stChatMessage"] { background-color: #0D2040; border: 1px solid #183560; border-radius: 10px; margin-bottom: 8px; }
-[data-testid="stChatMessage"] p, [data-testid="stChatMessage"] li { color: #EFF6FF !important; }
-[data-testid="stChatInput"] { background-color: #0D2040 !important; border: 1px solid #1AC8D4 !important; border-radius: 10px !important; }
-[data-testid="stChatInput"] textarea { color: #EFF6FF !important; background-color: #0D2040 !important; }
-h1, h2, h3, p, span, label { color: #EFF6FF !important; }
-[data-testid="stMetricValue"] { color: #1AC8D4 !important; }
-hr { border-color: #183560 !important; }
-.stCaption, small { color: #6B9CC4 !important; }
+/* ... all your existing CSS ... */
 #scroll-btn { position: fixed; bottom: 90px; right: 24px; width: 42px; height: 42px; background-color: #1AC8D4; color: #07132A; border: none; border-radius: 50%; font-size: 20px; cursor: pointer; z-index: 9999; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 10px rgba(26,200,212,0.4); text-decoration: none; }
 #scroll-btn:hover { background-color: #7DE8ED; }
 </style>
-<a id="scroll-btn" onclick="window.scrollTo({top: document.body.scrollHeight, behavior: 'smooth'})" title="Scroll to latest">↓</a>
+<a id="scroll-btn" onclick="
+  var el = window.parent.document.querySelector('section.main');
+  if (el) el.scrollTop = el.scrollHeight;
+" title="Scroll to latest">↓</a>
 """, unsafe_allow_html=True)
 
 @st.cache_resource
