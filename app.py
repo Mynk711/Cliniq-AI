@@ -217,7 +217,7 @@ st.markdown("""
 <style>
 [data-testid="stHeader"] { background-color: #07132A !important; border-bottom: 1px solid #183560 !important; }
 .stApp { background-color: #07132A; }
-.block-container { padding-top: 3rem !important; padding-left: 2rem; padding-right: 2rem; }
+.block-container { padding-top: 5rem !important; padding-left: 2rem; padding-right: 2rem; }
 [data-testid="stSidebar"] { background-color: #0A1F3D !important; border-right: 1px solid #183560; }
 [data-testid="stSidebar"] * { color: #EFF6FF !important; }
 [data-testid="stSidebar"] p, [data-testid="stSidebar"] li { color: #7A9CC4 !important; font-size: 12px !important; line-height: 1.7; }
