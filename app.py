@@ -348,7 +348,7 @@ for message in st.session_state.messages:
 def build_chat_history():
     return [
         {"role": m["role"], "content": m["content"]}
-        for m in st.session_state.messages[-20:]
+        for m in st.session_state.messages[-12:]
     ]
 
 def process_question(question):

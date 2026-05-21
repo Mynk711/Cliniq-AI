@@ -308,7 +308,7 @@ def run_sql_pipeline(question, chat_history=[]):
     return columns, rows, sql
 
 def run_rag_pipeline(question):
-    return retrieve(question, top_k=5)
+    return retrieve(question, top_k=4)
 
 def format_sql_context(columns, rows):
     if columns is None or not rows:
