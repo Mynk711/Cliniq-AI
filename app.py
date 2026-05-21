@@ -217,7 +217,9 @@ st.set_page_config(
 st.markdown("""
 <style>
 .stApp { background-color: #07132A; }
-.block-container { padding-top: 1.5rem; }
+.block-container { padding-top: 2.5rem; padding-left: 2rem; padding-right: 2rem; }
+[data-testid="stSidebar"] > div:first-child { padding-top: 1rem; }
+[data-testid="stSidebar"] section.main { overflow-y: auto; }
 [data-testid="stSidebar"] { background-color: #0A1F3D; border-right: 1px solid #183560; }
 [data-testid="stSidebar"] * { color: #EFF6FF; }
 [data-testid="stSidebar"] h1, [data-testid="stSidebar"] h2, [data-testid="stSidebar"] h3 { color: #EFF6FF !important; font-size: 13px !important; letter-spacing: 1px; font-weight: 600; }
