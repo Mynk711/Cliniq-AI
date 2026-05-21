@@ -60,7 +60,7 @@ class CliniqState(TypedDict):
     final_answer: str
     sql_used: Optional[str]
 
-# ── Core functions (unchanged) ────────────────────────────────────────────────
+# ── Core functions ────────────────────────────────────────────────────────────
 def classify_query(question):
     if re.search(r'\b\d{4,6}\b', question):
         return "s"
@@ -75,7 +75,7 @@ def classify_query(question):
         return "d"
     return decision.lower()
 
-def generate_sql(question, chat_history=[]):
+def generate_sql(question, chat_history=[], previous_sql=None, error_context=None):
     schema = """
     Tables:
     - patients: subject_id, gender, dob, dod
@@ -95,7 +95,18 @@ def generate_sql(question, chat_history=[]):
     - Beta blockers are stored as: Metoprolol Tartrate, Metoprolol Succinate XL,
       Carvedilol, Atenolol, Labetalol, Propranolol
     - When searching drugs use LIKE with exact casing e.g. drug LIKE 'Metoprolol%'
+    - NEVER use UNION ALL — it mixes column types and breaks results
+    - For patient-specific queries, always use a single JOIN across all tables:
+      SELECT p.subject_id, p.gender, p.dob, p.dod,
+             a.hadm_id, a.admittime, a.dischtime, a.admission_type, a.diagnosis,
+             d.icd9_code, pr.drug, pr.dose_val_rx, pr.dose_unit_rx
+      FROM patients p
+      LEFT JOIN admissions a ON p.subject_id = a.subject_id
+      LEFT JOIN diagnoses d ON a.hadm_id = d.hadm_id
+      LEFT JOIN prescriptions pr ON a.hadm_id = pr.hadm_id
+      WHERE p.subject_id = [ID]
     """
+
     prompt = f"""
     Given this database schema:
     {schema}
@@ -108,17 +119,48 @@ def generate_sql(question, chat_history=[]):
     - Always alias aggregation columns e.g. AVG(age) AS average_age
     - Return ONLY the SQL query, nothing else.
     - No explanation, no markdown, no backticks.
+    - NEVER use UNION ALL.
     """
+
+    # If retrying, inject what went wrong so LLM can self-correct
+    if previous_sql and error_context:
+        prompt += f"""
+
+    IMPORTANT — your previous attempt failed:
+    SQL tried: {previous_sql}
+    Problem: {error_context}
+    Generate a corrected SQL query that fixes this issue.
+    """
+
     messages = [{"role": "system", "content": "You are a SQL expert for a healthcare SQLite database."}]
     messages.extend(chat_history)
     messages.append({"role": "user", "content": prompt})
     response = client.chat.completions.create(model=MODEL, messages=messages, temperature=0)
     return response.choices[0].message.content.strip()
 
-def run_sql_pipeline(question, chat_history=[]):
-    sql = generate_sql(question, chat_history)
-    columns, rows = query_db(sql)
-    return columns, rows, sql
+def run_sql_pipeline(question, chat_history=[], retries=2):
+    """Generate and execute SQL with automatic retry on failure."""
+    previous_sql = None
+    error_context = None
+
+    for attempt in range(retries):
+        sql = generate_sql(question, chat_history, previous_sql, error_context)
+        columns, rows = query_db(sql)
+
+        # Success — got results
+        if columns is not None and rows:
+            return columns, rows, sql
+
+        # Failed — build error context for next attempt
+        if columns is None:
+            error_context = "SQL execution failed — likely a syntax error or invalid column/table reference"
+        else:
+            error_context = "SQL executed but returned 0 rows — query logic may be too restrictive or using wrong column values"
+
+        previous_sql = sql
+
+    # All retries exhausted — return whatever we have
+    return columns, rows or [], sql
 
 def run_rag_pipeline(question):
     return retrieve(question, top_k=3)
@@ -162,18 +204,16 @@ def answer_direct(question, chat_history=[]):
 
 # ── LangGraph Nodes ───────────────────────────────────────────────────────────
 def router_node(state: CliniqState) -> dict:
-    route = classify_query(state["question"])
-    return {"route": route}
+    return {"route": classify_query(state["question"])}
 
 def sql_node(state: CliniqState) -> dict:
     columns, rows, sql = run_sql_pipeline(state["question"], state["chat_history"])
-    context = format_sql_context(columns, rows)
-    return {"columns": columns, "rows": rows, "sql": sql, "context": context, "sql_used": sql}
+    return {"columns": columns, "rows": rows, "sql": sql,
+            "context": format_sql_context(columns, rows), "sql_used": sql}
 
 def rag_node(state: CliniqState) -> dict:
     chunks = run_rag_pipeline(state["question"])
-    context = format_rag_context(chunks)
-    return {"chunks": chunks, "context": context, "sql_used": None}
+    return {"chunks": chunks, "context": format_rag_context(chunks), "sql_used": None}
 
 def hybrid_node(state: CliniqState) -> dict:
     with ThreadPoolExecutor(max_workers=2) as executor:
@@ -181,18 +221,15 @@ def hybrid_node(state: CliniqState) -> dict:
         rag_future = executor.submit(run_rag_pipeline, state["question"])
         columns, rows, sql = sql_future.result()
         chunks = rag_future.result()
-    sql_context = format_sql_context(columns, rows)
-    rag_context = format_rag_context(chunks)
-    combined = f"STRUCTURED DATABASE RESULTS:\n{sql_context}\n\nSEMANTIC PATIENT RECORDS:\n{rag_context}"
-    return {"columns": columns, "rows": rows, "sql": sql, "chunks": chunks, "context": combined, "sql_used": sql}
+    combined = f"STRUCTURED DATABASE RESULTS:\n{format_sql_context(columns, rows)}\n\nSEMANTIC PATIENT RECORDS:\n{format_rag_context(chunks)}"
+    return {"columns": columns, "rows": rows, "sql": sql,
+            "chunks": chunks, "context": combined, "sql_used": sql}
 
 def direct_node(state: CliniqState) -> dict:
-    ans = answer_direct(state["question"], state["chat_history"])
-    return {"final_answer": ans, "sql_used": None}
+    return {"final_answer": answer_direct(state["question"], state["chat_history"]), "sql_used": None}
 
 def synthesize_node(state: CliniqState) -> dict:
-    ans = synthesize(state["question"], state["context"], state["chat_history"])
-    return {"final_answer": ans}
+    return {"final_answer": synthesize(state["question"], state["context"], state["chat_history"])}
 
 def route_decision(state: CliniqState) -> str:
     return state["route"]
@@ -200,49 +237,34 @@ def route_decision(state: CliniqState) -> str:
 # ── Build Graph ───────────────────────────────────────────────────────────────
 def build_graph():
     graph = StateGraph(CliniqState)
-
     graph.add_node("router",     router_node)
     graph.add_node("sql",        sql_node)
     graph.add_node("rag",        rag_node)
     graph.add_node("hybrid",     hybrid_node)
     graph.add_node("direct",     direct_node)
     graph.add_node("synthesize", synthesize_node)
-
     graph.set_entry_point("router")
     graph.add_conditional_edges("router", route_decision, {
-        "s": "sql",
-        "r": "rag",
-        "h": "hybrid",
-        "d": "direct"
+        "s": "sql", "r": "rag", "h": "hybrid", "d": "direct"
     })
     graph.add_edge("sql",    "synthesize")
     graph.add_edge("rag",    "synthesize")
     graph.add_edge("hybrid", "synthesize")
     graph.add_edge("direct", END)
     graph.add_edge("synthesize", END)
-
     return graph.compile()
 
 _graph = build_graph()
 
-# ── Main entry point (same signature as before) ───────────────────────────────
+# ── Main entry point ──────────────────────────────────────────────────────────
 def answer(question, chat_history=[]):
     result = _graph.invoke({
-        "question":     question,
-        "chat_history": chat_history,
-        "route":        "",
-        "columns":      None,
-        "rows":         None,
-        "sql":          None,
-        "chunks":       None,
-        "context":      "",
-        "final_answer": "",
-        "sql_used":     None
+        "question": question, "chat_history": chat_history,
+        "route": "", "columns": None, "rows": None, "sql": None,
+        "chunks": None, "context": "", "final_answer": "", "sql_used": None
     })
-
     route = result["route"].upper()
     method_map = {"S": "SQL", "R": "RAG", "H": "HYBRID", "D": "DIRECT"}
-
     return {
         "answer":   result["final_answer"],
         "method":   method_map.get(route, "DIRECT"),
