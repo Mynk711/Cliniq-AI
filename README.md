@@ -1,4 +1,4 @@
-# 🏥 CliniqAI
+# ⚕️ CliniqAI
 
 An intelligent clinical assistant that unifies fragmented healthcare data into a single natural language interface. Built on real de-identified ICU data from MIMIC-III.
 
