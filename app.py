@@ -253,9 +253,7 @@ textarea, input { color: #EFF6FF !important; -webkit-text-fill-color: #EFF6FF !i
 [data-testid="stExpander"] summary { color: #6B9CC4 !important; font-size: 12px; }
 [data-testid="stExpander"] summary:hover { color: #1AC8D4 !important; }
 .stCodeBlock, pre { background-color: #030C1A !important; border: 1px solid #183560 !important; border-radius: 8px; }
-[data-baseweb="base-input"] * { -webkit-text-fill-color: #EFF6FF !important; color: #EFF6FF !important; }
-[data-baseweb="textarea"] * { -webkit-text-fill-color: #EFF6FF !important; color: #EFF6FF !important; }
-[data-baseweb="base-input"] textarea { -webkit-text-fill-color: #EFF6FF !important; color: #EFF6FF !important; }
+[data-testid="stChatInputTextArea"] { color: #EFF6FF !important; -webkit-text-fill-color: #EFF6FF !important; caret-color: #EFF6FF !important; }
 </style>
 """, unsafe_allow_html=True)
 
