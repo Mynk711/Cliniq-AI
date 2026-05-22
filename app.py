@@ -253,7 +253,6 @@ textarea, input { color: #EFF6FF !important; background-color: transparent !impo
 .stCodeBlock, pre { background-color: #030C1A !important; border: 1px solid #183560 !important; border-radius: 8px; }
 </style>
 """, unsafe_allow_html=True)
-""", unsafe_allow_html=True)
 
 @st.cache_resource
 def initialize():
