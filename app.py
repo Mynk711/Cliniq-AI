@@ -241,12 +241,14 @@ hr { border-color: #183560 !important; margin: 0.8rem 0; }
 [data-testid="stBottomBlockContainer"] { background-color: #07132A !important; }
 .st-emotion-cache-128upt6 { background-color: #07132A !important; }
 [data-testid="stChatInput"] { background-color: #0D2040 !important; border: 1.5px solid #1AC8D4 !important; border-radius: 12px !important; }
-[data-testid="stChatInput"] * { color: #EFF6FF !important; }
-[data-testid="stChatInput"] textarea { color: #EFF6FF !important; background-color: transparent !important; caret-color: #EFF6FF !important; }
-[data-testid="stChatInput"] textarea::placeholder { color: #3D5A7A !important; opacity: 1 !important; }
+[data-testid="stChatInput"] * { color: #EFF6FF !important; -webkit-text-fill-color: #EFF6FF !important; }
+[data-testid="stChatInput"] textarea,
+[data-testid="stChatInput"] textarea:focus,
+[data-testid="stChatInput"] textarea:active { color: #EFF6FF !important; -webkit-text-fill-color: #EFF6FF !important; background-color: transparent !important; caret-color: #EFF6FF !important; }
+[data-testid="stChatInput"] textarea::placeholder { color: #3D5A7A !important; -webkit-text-fill-color: #3D5A7A !important; opacity: 1 !important; }
 [data-testid="stChatInput"] button { background-color: #1AC8D4 !important; border-radius: 8px !important; }
 [data-testid="stChatInput"] button svg { fill: #07132A !important; }
-textarea, input { color: #EFF6FF !important; background-color: transparent !important; }
+textarea, input { color: #EFF6FF !important; -webkit-text-fill-color: #EFF6FF !important; background-color: transparent !important; }
 [data-testid="stExpander"] { background-color: #07132A !important; border: 1px solid #183560; border-radius: 8px; }
 [data-testid="stExpander"] summary { color: #6B9CC4 !important; font-size: 12px; }
 [data-testid="stExpander"] summary:hover { color: #1AC8D4 !important; }
