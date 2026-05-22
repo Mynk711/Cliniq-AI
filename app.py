@@ -245,6 +245,9 @@ hr { border-color: #183560 !important; margin: 0.8rem 0; }
 [data-testid="stExpander"] summary:hover { color: #1AC8D4 !important; }
 .stCodeBlock, pre { background-color: #030C1A !important; border: 1px solid #183560 !important; border-radius: 8px; }
 [data-testid="stBottom"] { background-color: #07132A !important; }
+[data-testid="stBottom"] > div { background-color: #07132A !important; }
+[data-testid="stBottomBlockContainer"] { background-color: #07132A !important; }
+.st-emotion-cache-128upt6 { background-color: #07132A !important; }
 </style>
 """, unsafe_allow_html=True)
 
